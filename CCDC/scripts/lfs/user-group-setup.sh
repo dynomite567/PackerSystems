@@ -1,7 +1,12 @@
 #!/tools/bin/bash
 # Author: Bailey Kasin
 
+set -eu
+set -x
+set +h
+
 echo "In chroot"
+echo "root user and groups setup"
 
 mkdir -pv /{bin,boot,etc/{opt,sysconfig},home,lib/firmware,mnt,opt}
 mkdir -pv /{media/{floppy,cdrom},sbin,srv,var}
@@ -9,12 +14,12 @@ install -dv -m 0750 /root
 install -dv -m 1777 /tmp /var/tmp
 mkdir -pv /usr/{,local/}{bin,include,lib,sbin,src}
 mkdir -pv /usr/{,local/}share/{color,dict,doc,info,locale,man}
-mkdir -v /usr/{,local/}share/{misc,terminfo,zoneinfo}
-mkdir -v /usr/libexec
+mkdir -v  /usr/{,local/}share/{misc,terminfo,zoneinfo}
+mkdir -v  /usr/libexec
 mkdir -pv /usr/{,local/}share/man/man{1..8}
 
 case $(uname -m) in
-  x86_64) mkdir -v /lib64 ;;
+ x86_64) mkdir -v /lib64 ;;
 esac
 
 mkdir -v /var/{log,mail,spool}
@@ -63,4 +68,8 @@ nogroup:x:99:
 users:x:999:
 EOF
 
-exec /tools/bin/bash --login +h $LFS/build-to-bash.sh
+echo "build to bash"
+
+cd /
+
+exec /tools/bin/bash --login +h ./build-to-bash.sh

@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/ScoringEngine/CyberPatriotWindows/CyberPatriotWindows.csproj"
+                "${workspaceFolder}/ScoringEngine/ScoringEngine/opt/site/site.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

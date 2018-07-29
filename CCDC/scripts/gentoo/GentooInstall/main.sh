@@ -3,15 +3,16 @@
 # Date    : 12/14/2017
 # Purpose : Main file of a suite of Gentoo install and config scripts
 
+set -eu
+set -x
+
 MIRRORLIST="https://www.archlinux.org/mirrorlist/?country=${ACOUNTRY}&protocol=http&protocol=https&ip_version=4&use_mirror_status=on"
 
 echo "==> Setting local mirror"
 curl -s "$MIRRORLIST" |  sed 's/^#Server/Server/' > /etc/pacman.d/mirrorlist
 
 source ./include/src/disk_functions.sh
-source ./include/src/menu.sh
 source ./include/src/tarball_functions.sh
-source ./include/src/useful_functions.sh
 source ./include/src/profile_functions.sh
 source ./include/src/kernel_functions.sh
 source ./include/src/system_var_functions.sh
@@ -55,6 +56,7 @@ echo "$(tput setaf 3)
 
 $(tput sgr0)";
 
+rsync -ah --progress include/src/install_mirrorselect.sh /tmp/install_mirrorselect.sh
 source ./include/src/preflight.sh
 
 # Check for root privileges
@@ -71,6 +73,8 @@ echo "Using disk /dev/sda. This next step will wipe that disk, is that okay?"
 
 partition_disk /dev/sda
 
+# Get the disk to mount from the file it was saved in and then append 4 to it
+
 # Mount that disk to be used as the actual install location
 mkdir /mnt/gentoo
 mount /dev/sda4 /mnt/gentoo
@@ -78,7 +82,9 @@ mount /dev/sda4 /mnt/gentoo
 toolLocation=$( find / |grep GentooInstall |head -n1 )
 cd $toolLocation && cd ../
 rsync -ah --progress GentooInstall /mnt/gentoo/
+rsync -ah --progress /cleanup.sh /mnt/gentoo/
 
+# Move the diskUsed file over
 mkdir /mnt/gentoo/tmp
 rsync -ah --progress /tmp/diskUsed.txt /mnt/gentoo/tmp
 

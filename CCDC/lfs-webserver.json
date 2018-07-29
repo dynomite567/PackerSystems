@@ -1,6 +1,6 @@
 {
   "variables": {
-    "iso_url": "https://files.gingertechnology.net/packersystems/archlinux-2018.03.20-x86_64.iso",
+    "iso_url": "https://files.gingertechnology.net/packersystems/archlinux-2018.05.26-x86_64.iso",
     "iso_checksum_url": "https://files.gingertechnology.net/packersystems/SHA1SUMS",
     "iso_checksum_type": "sha1",
     "ssh_timeout": "20m",
@@ -11,7 +11,8 @@
     "memory": "4096",
     "memory_after": "1024",
     "disk_size": "20480",
-    "lfs": "/mnt/lfs"
+    "build_num": "1.0",
+    "vmname": "White"
   },
   "builders": [
     {
@@ -24,10 +25,13 @@
       "http_directory": "http",
       "boot_wait": "5s",
       "boot_command": [
-        "<enter><wait10><wait10><wait10><wait10>",
-        "/usr/bin/curl -O http://{{ .HTTPIP }}:{{ .HTTPPort }}/enable-ssh.sh<enter><wait5>",
-        "/usr/bin/curl -O http://{{ .HTTPIP }}:{{ .HTTPPort }}/poweroff.timer<enter><wait5>",
-        "/usr/bin/bash ./enable-ssh.sh<enter>",
+        "<enter><wait10><wait10><wait10>",
+        "PASSWORD=$(/usr/bin/openssl passwd -crypt 'password')<enter><wait5>",
+        "/usr/bin/useradd -s /bin/bash --password ${PASSWORD} --comment 'administrator User' --create-home --user-group -k /dev/null administrator<enter>",
+        "echo 'Defaults env_keep += \"SSH_AUTH_SOCK\"' > /etc/sudoers.d/10_administrator<enter>",
+        "echo 'administrator ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/10_administrator<enter>",
+        "/usr/bin/chmod 0440 /etc/sudoers.d/10_administrator<enter>",
+        "/usr/bin/systemctl start sshd.service<enter>",
         "mkdir /temp && chown administrator -R /temp<enter>"
       ],
       "disk_size": "{{user `disk_size`}}",
@@ -37,6 +41,8 @@
       "ssh_timeout": "{{ user `ssh_timeout` }}",
       "shutdown_command": "sudo poweroff",
       "headless" : "{{ user `headless`}}",
+      "output_directory": "Builds/{{user `vmname`}}-{{user `build_num`}}",
+      "vm_name": "{{user `vmname`}}-{{user `build_num`}}",
       "vboxmanage": [
           ["modifyvm", "{{.Name}}", "--memory", "{{user `memory`}}"],
           ["modifyvm", "{{.Name}}", "--cpus", "{{user `cpus`}}"]
@@ -52,7 +58,7 @@
       "boot_command": [
         "<enter><wait10><wait10><wait10>",
         "PASSWORD=$(/usr/bin/openssl passwd -crypt 'password')<enter><wait5>",
-        "/usr/bin/useradd --password ${PASSWORD} --comment 'administrator User' --create-home --user-group administrator<enter>",
+        "/usr/bin/useradd -s /bin/bash --password ${PASSWORD} --comment 'administrator User' --create-home --user-group -k /dev/null administrator<enter>",
         "echo 'Defaults env_keep += \"SSH_AUTH_SOCK\"' > /etc/sudoers.d/10_administrator<enter>",
         "echo 'administrator ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/10_administrator<enter>",
         "/usr/bin/chmod 0440 /etc/sudoers.d/10_administrator<enter>",
@@ -66,6 +72,8 @@
       "ssh_timeout": "{{ user `ssh_timeout` }}",
       "shutdown_command": "sudo poweroff",
       "headless" : "{{ user `headless`}}",
+      "output_directory": "Builds/{{user `vmname`}}-{{user `build_num`}}",
+      "vm_name": "{{user `vmname`}}-{{user `build_num`}}",
       "vmx_data": {
         "memsize": "{{user `memory`}}",
         "numvcpus": "{{user `cpus`}}"
@@ -83,10 +91,13 @@
       "http_directory": "http",
       "boot_wait": "5s",
       "boot_command": [
-        "<enter><wait10><wait10><wait10><wait10>",
-        "/usr/bin/curl -O http://{{ .HTTPIP }}:{{ .HTTPPort }}/enable-ssh.sh<enter><wait5>",
-        "/usr/bin/curl -O http://{{ .HTTPIP }}:{{ .HTTPPort }}/poweroff.timer<enter><wait5>",
-        "/usr/bin/bash ./enable-ssh.sh<enter>",
+        "<enter><wait10><wait10><wait10>",
+        "PASSWORD=$(/usr/bin/openssl passwd -crypt 'password')<enter><wait5>",
+        "/usr/bin/useradd -s /bin/bash --password ${PASSWORD} --comment 'administrator User' --create-home --user-group -k /dev/null administrator<enter>",
+        "echo 'Defaults env_keep += \"SSH_AUTH_SOCK\"' > /etc/sudoers.d/10_administrator<enter>",
+        "echo 'administrator ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/10_administrator<enter>",
+        "/usr/bin/chmod 0440 /etc/sudoers.d/10_administrator<enter>",
+        "/usr/bin/systemctl start sshd.service<enter>",
         "mkdir /temp && chown administrator -R /temp<enter>"
       ],
       "disk_size": "{{user `disk_size`}}",
@@ -94,10 +105,17 @@
       "ssh_password": "password",
       "ssh_timeout": "{{ user `ssh_timeout` }}",
       "shutdown_command": "sudo poweroff",
+      "output_directory": "Builds/{{user `vmname`}}-{{user `build_num`}}",
+      "vm_name": "{{user `vmname`}}-{{user `build_num`}}",
       "headless" : "{{ user `headless`}}"
     }
   ],
   "provisioners": [
+    {
+        "type": "file",
+        "source": "files/0001-Ensure-that-packed-structs-follow-the-gcc-memory-lay.patch",
+        "destination": "/temp/0001-Ensure-that-packed-structs-follow-the-gcc-memory-lay.patch"
+    },
     {
       "type": "file",
       "source": "scripts/lfs/build-to-bash.sh",
@@ -110,40 +128,38 @@
     },
     {
       "type": "file",
-      "source": "scripts/lfs/lfs-webserver.sh",
-      "destination": "/temp/lfs-webserver.sh"
-    },
-    {
-      "type": "file",
-      "source": "scripts/lfs/package-manager.sh",
-      "destination": "/temp/package-manager.sh"
-    },
-    {
-      "type": "file",
       "source": "scripts/lfs/user-group-setup.sh",
       "destination": "/temp/user-group-setup.sh" 
     },
     {
-      "type": "file",
-      "source": "files/system.spec",
-      "destination": "/temp/system.spec"
-    },
-    {
-      "type": "file",
-      "source": "scripts/lfs/vpkg-provides.sh",
-      "destination": "/temp/vpkg-provides.sh"
+      "type": "shell",
+      "scripts": [
+        "scripts/lfs/bash-setup.sh"
+      ]
     },
     {
       "environment_vars": [
           "COUNTRY={{ user `country` }}",
-          "LFS={{ user `lfs` }}",
           "CPUS={{ user `cpus` }}"
       ],
       "type": "shell",
-      "execute_command": "{{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "execute_command": "{{.Vars}} sudo -E -S bash '{{.Path}}'",
       "expect_disconnect": true,
       "scripts": [
-        "scripts/lfs/setup-base.sh"
+        "scripts/lfs/setup-base.sh",
+        "scripts/lfs/reboot.sh"
+      ]
+    },
+    {
+      "environment_vars": [
+          "COUNTRY={{ user `country` }}",
+          "CPUS={{ user `cpus` }}"
+      ],
+      "type": "shell",
+      "execute_command": "{{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "expect_disconnect": true,
+      "scripts": [
+        "scripts/lfs/lfs-webserver.sh"
       ]
     }
   ]

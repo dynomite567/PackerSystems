@@ -7,11 +7,11 @@ function emerge_update
 {
 	# Finish the chroot
 	source /etc/profile
-	export PS1="(chroot) ${PS1}"
+	#export PS1="(chroot) ${PS1}"
 
 	# Finish mounting now that we are chrooted
 	echo "Mounting boot partition."
-	mkdir /boot
+	#mkdir /boot
 	mount /dev/sda2 /boot
 
 	# Get the latest metadata
@@ -55,9 +55,8 @@ function resolv_mount
 		chmod 1777 /dev/shm
 	fi
 
-	greenEcho "About to chroot. This will begin step two, which will cause a second run of the preflight steps, and then everything will pick up where it left off. Press enter to continue."
-	read enter
-	chroot /mnt/gentoo /bin/bash COUNTRY=${COUNTRY} GentooInstall/step_two.sh
+	echo "About to chroot. This will begin step two, which will cause a second run of the preflight steps, and then everything will pick up where it left off. Press enter to continue."
+	chroot /mnt/gentoo /bin/bash GentooInstall/step_two.sh
 }
 
 function make_make
@@ -66,6 +65,11 @@ function make_make
 	core_count=$(lscpu |grep CPU |(sed -n 2p) |awk '{print $2}')
 	let core_count+=1
 
+	# Use the mirrorselect script to autoselect the best mirror to sync from
+	echo "Now autopicking the closest mirror to you by downloading 100kb from each option and going with the fastest one."
+
+  mirrorselect -s4 -b10 -o -c ${COUNTRY:-USA} -D >> /mnt/gentoo/etc/portage/make.conf
+
 	# If setting the core count kept the plus, set it to 2 instead
 	# Otherwise, echo the core count into make.conf
 	if [[ $core_count = *"+"* ]]; then
@@ -73,6 +77,7 @@ function make_make
 	else
 		echo "MAKEOPTS=-j$core_count" >> /mnt/gentoo/etc/portage/make.conf
 	fi
+	echo "USE=apache2" >> /mnt/gentoo/etc/portage/make.conf
 
 	echo "Portage configured. Preparing for chroot."
 	resolv_mount
@@ -82,7 +87,7 @@ function download_tarball
 {
 	cd /mnt/gentoo
 
-	greenEcho "This is where we get the tarball that will be used to make the base filesystem. Eventually I may be able to automate this part, but for now I am going to open links to Gentoo's mirror page.
+	echo "This is where we get the tarball that will be used to make the base filesystem. Eventually I may be able to automate this part, but for now I am going to open links to Gentoo's mirror page.
 	Pick a server close to you, and then the stage 3 .tar.bz2 that best matches your system."
 	
 	wget ${TARBALL}

@@ -1,42 +1,21 @@
 #!/bin/bash
 # Author: Bailey Kasin
 
-echo "Building RPM"
+set -eu
+set -x
+set +h
 
-function build_ssh
-{
-  # OpenSSH Server to connect post-reboot
-  cd $LFS/sources
-  tar xvf openssh-7.6p1.tar.gz
-  cd openssh-7.6p1
+umask 022
+LFS=/
+echo $LFS
+LC_ALL=POSIX
+echo $LC_ALL
+LFS_TGT=$(uname -m)-gt-linux-gnu
+echo "On $LFS_TGT"
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin:/usr/bin/core_perl
+echo $PATH
 
-  install  -v -m700 -d /var/lib/sshd &&
-  chown    -v root:sys /var/lib/sshd &&
-
-  groupadd -g 75 sshd
-  useradd  -c 'sshd PrivSep' \
-           -d /var/lib/sshd  \
-           -g sshd           \
-           -s /bin/false     \
-           -u 75 sshd
-  patch -Np1 -i ../openssh-7.6p1-openssl-1.1.0-1.patch
-
-  ./configure --prefix=/usr                     \
-              --sysconfdir=/etc/ssh             \
-              --with-md5-passwords              \
-              --with-privsep-path=/var/lib/sshd
-  make
-  make install
-  install -v -m755    contrib/ssh-copy-id /usr/bin
-  install -v -m644    contrib/ssh-copy-id.1 \
-                      /usr/share/man/man1
-  install -v -m755 -d /usr/share/doc/openssh-7.6p
-  install -v -m644    INSTALL LICENCE OVERVIEW README* \
-                      /usr/share/doc/openssh-7.6p1
-
-  cd $LFS/sources/blfs-bootscripts-20180105
-  make install-sshd
-}
+echo "Building DPKG"
 
 function build_berkeley
 {
@@ -50,7 +29,7 @@ function build_berkeley
                     --enable-dbm        \
                     --disable-static    \
                     --enable-cxx        &&
-  make
+  make -j${CPUS}
   make docdir=/usr/share/doc/db-6.2.32 install &&
 
   chown -v -R root:root                 \
@@ -70,7 +49,7 @@ function build_nettools
   sed -i '/#include <netinet\/ip.h>/d' iptunnel.c &&
 
   yes "" | make config &&
-  make
+  make -j${CPUS}
   make update
 }
 
@@ -80,7 +59,7 @@ function build_gnupg
   tar xvf libgpg-error-1.27.tar.bz2
   cd libgpg-error-1.27
   ./configure --prefix=/usr &&
-  make
+  make -j${CPUS}
   make install &&
   install -v -m644 -D README /usr/share/doc/libgpg-error-1.27/README
 
@@ -88,14 +67,14 @@ function build_gnupg
   tar xvf libassuan-2.5.1.tar.bz2
   cd libassuan-2.5.1
   ./configure --prefix=/usr &&
-  make
+  make -j${CPUS}
   make install
 
   cd $LFS/sources
   tar xvf libgcrypt-1.8.2.tar.bz2
   cd libgcrypt-1.8.2
   ./configure --prefix=/usr &&
-  make
+  make -j${CPUS}
   make install &&
   install -v -dm755 /usr/share/doc/libgcrypt-1.8.2 &&
   install -v -m644 README doc/{README.apichanges,fips*,libgcrypt*} \
@@ -105,14 +84,14 @@ function build_gnupg
   tar xvf libksba-1.3.5.tar.bz2
   cd libksba-1.3.5
   ./configure --prefix=/usr &&
-  make
+  make -j${CPUS}
   make install
 
   cd $LFS/sources
   tar xvf npth-1.5.tar.bz2
   cd npth-1.5
   ./configure --prefix=/usr &&
-  make
+  make -j${CPUS}
   make install
 
   cd $LFS/sources
@@ -124,7 +103,7 @@ function build_gnupg
               --enable-symcryptrun      \
               --enable-maintainer-mode  \
               --docdir=/usr/share/doc/gnupg-2.2.4 &&
-  make &&
+  make -j${CPUS} &&
   makeinfo --html --no-split \
             -o doc/gnupg_nochunks.html  doc/gnupg.texi &&
   makeinfo --plaintext       \
@@ -144,7 +123,7 @@ function build_pinentry
   cd pinentry-1.1.0
   
   ./configure --prefix=/usr --enable-pinentry-tty &&
-  make
+  make -j${CPUS}
   make install
 }
 
@@ -161,7 +140,7 @@ function build_libxml2
               --disable-static    \
               --with-history      \
               --with-python=/usr/bin/python3 &&
-  make
+  make -j${CPUS}
   make install
 }
 
@@ -178,7 +157,7 @@ function build_popt
   cd popt-1.16
 
   ./configure --prefix=/usr --disable-static &&
-  make
+  make -j${CPUS}
   make install
 }
 
@@ -189,7 +168,7 @@ function build_libarchive
   cd libarchive-3.3.2
 
   ./configure --prefix=/usr --disable-static &&
-  make
+  make -j${CPUS}
   make install
 }
 
@@ -200,40 +179,103 @@ function build_neon
   cd neon-0.25.5
 
   ./configure --prefix=/usr --enable-shared &&
-  make &&
+  make -j${CPUS} &&
   make install
 }
 
+# RPM deps that I'm not sure are needed by DPKG
 build_popt
 build_libarchive
 build_neon
 
-function build_rpm
+function dpkg_deps
 {
   cd $LFS/sources
-  tar xvf rpm-4.14.1.tar.bz2
-  cd rpm-4.14.1
-  
-  ./configure --prefix=/usr           \
-			        --enable-posixmutexes   \
-              --with-crypto=openssl   \
-			        --without-selinux       \
-        	    --without-python        \
-              --without-lua           \
-      	      --without-javaglue &&
-  make &&
+  tar xvf make-ca-0.7.tar.gz
+  cd make-ca-0.7
+
+  install -vdm755 /etc/ssl/local &&
+  wget http://www.cacert.org/certs/root.crt &&
+  wget http://www.cacert.org/certs/class3.crt &&
+  openssl x509 -in root.crt -text -fingerprint -setalias "CAcert Class 1 root" \
+          -addtrust serverAuth -addtrust emailProtection -addtrust codeSigning \
+          > /etc/ssl/local/CAcert_Class_1_root.pem &&
+  openssl x509 -in class3.crt -text -fingerprint -setalias "CAcert Class 3 root" \
+          -addtrust serverAuth -addtrust emailProtection -addtrust codeSigning \
+          > /etc/ssl/local/CAcert_Class_3_root.pem
   make install
-  
-  rpm --initdb --root=/
-  cd $LFS
-  $LFS/vpkg-provides.sh --spec_header $LFS/system.spec
-  rpm --version
+  /usr/sbin/make-ca -g
+
+  cd $LFS/sources
+  tar xvf curl-7.58.0.tar.xz
+  cd curl-7.58.0
+
+  ./configure --prefix=/usr                           \
+              --disable-static                        \
+              --enable-threaded-resolver              \
+              --with-ca-path=/etc/ssl/certs &&
+  make -j${CPUS}
+  make install &&
+  rm -rf docs/examples/.deps &&
+  find docs \( -name Makefile\* -o -name \*.1 -o -name \*.3 \) -exec rm {} \; &&
+  install -v -d -m755 /usr/share/doc/curl-7.58.0 &&
+  cp -v -R docs/*     /usr/share/doc/curl-7.58.0
+
+  cd $LFS/sources
+  tar xvf Python-2.7.15.tar.xz
+  cd Python-2.7.15
+
+  sed -i '/#SSL/,+3 s/^#//' Modules/Setup.dist
+  ./configure --prefix=/usr       \
+              --enable-shared     \
+              --with-system-expat \
+              --with-system-ffi   \
+              --with-ensurepip=yes \
+              --enable-unicode=ucs4 &&
+  make -j${CPUS}
+  make install &&
+  chmod -v 755 /usr/lib/libpython2.7.so.1.0
+
+  cd $LFS/sources
+  tar xvf git-2.16.2.tar.xz
+  cd git-2.16.2
+
+  ./configure --prefix=/usr --with-gitconfig=/etc/gitconfig &&
+  make -j${CPUS}
+  make install
 }
 
-build_rpm
+function build_libmd
+{
+  cd $LFS/sources
+  tar xvf libmd-1.0.0.tar.xz
+  cd libmd-1.0.0
+
+  ./autogen
+  ./configure --prefix=/usr
+  make -j${CPUS}
+  make install
+}
+
+function build_dpkg
+{
+  cd $LFS/sources
+  tar xvf dpkg.tar.gz
+  cd dpkg
+
+  ./autogen
+  ./configure --prefix=/usr
+  make -j${CPUS}
+  make install
+}
+
+dpkg_deps
+build_libmd
+build_dpkg
 cd $LFS/sources
-rpm -i -vv openssh-5.3p1-122.el6.x86_64.rpm
 
-#build_ssh
-
-$LFS/lfs-webserver.sh
+dpkg -i gpgv_2.1.18-8~deb9u2_amd64.deb
+dpkg -i debian-archive-keyring_2017.5_all.deb
+dpkg -i init-system-helpers_1.48_all.deb
+dpkg -i libapt-pkg5.0_1.4.8_amd64.deb
+dpkg -i apt_1.4.8_amd64.deb

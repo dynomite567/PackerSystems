@@ -8,7 +8,6 @@ cd /GentooInstall/
 source ./include/src/preflight.sh
 source ./include/src/disk_functions.sh
 source ./include/src/tarball_functions.sh
-source ./include/src/useful_functions.sh
 source ./include/src/profile_functions.sh
 source ./include/src/kernel_functions.sh
 source ./include/src/system_var_functions.sh
@@ -60,14 +59,10 @@ echo "Preflight done, should be good to go!"
 emerge_update
 # Select the profile
 pick_profile
-# Install mirrorselect
-emerge mirrorselect
-mirrorselect -s4 -b10 -o -c ${COUNTRY:-USA} -D >> /etc/portage/make.conf
 # Download the kernel sources
 download_install_kernel
 # Go into system_var_functions and configure stuff there
 set_hostname
-
 # Configure network interface
 function configure_network
 {
@@ -88,12 +83,14 @@ function configure_network
 
 configure_network
 
+emerge -1 portage && emerge nullmailer
+
 emerge sys-apps/shadow
 echo "Now setting password for root user!"
-chpasswd <<EOL
-root:3dG5^hwo
-EOL
-passwd -e root
+yes password | passwd root
+
+# Install sudo for privilege escalation
+emerge app-admin/sudo
 
 # Installing system tools
 # Logger
@@ -112,20 +109,21 @@ rc-update add sshd default
 
 # Install DHCP client
 emerge net-misc/dhcpcd
-# Install wireless tools
-emerge net-wireless/iw net-wireless/wpa_supplicant
 
-greenEcho "Installing grub"
+echo "Installing grub"
 # Install GRUB on that disk
 install_grub /dev/sda
 
-emerge app-admin/sudo
-/usr/bin/useradd --password 3dG5^hwo --comment 'administrator User' --create-home --user-group administrator
+set -x
+
+PASSWORD=$(openssl passwd -crypt 'password')
+useradd --password ${PASSWORD} --comment 'administrator User' --create-home --user-group administrator
 echo 'Defaults env_keep += "SSH_AUTH_SOCK"' > /etc/sudoers.d/10_administrator
 echo 'administrator ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/10_administrator
-/usr/bin/chmod 0440 /etc/sudoers.d/10_administrator
+chmod 0440 /etc/sudoers.d/10_administrator
 
-greenEcho "We should be done."
+yes password | passwd administrator
 
-greenEcho "Going to reboot now. Good luck, soldier."
-greenEcho "I suggest making a new user after the reboot. Refer to the Finalizing page of the Gentoo handbook for details on that."
+echo "We should be done."
+
+echo "Going to reboot now. Good luck, soldier."

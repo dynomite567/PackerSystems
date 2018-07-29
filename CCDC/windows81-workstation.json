@@ -1,24 +1,42 @@
 {
+  
+  "variables": {
+    "vm_name": "Windows 81",
+    "iso_checksum": "5e4ecb86fd8619641f1d58f96e8561ec",
+    "iso_url": "http://download.microsoft.com/download/B/9/9/B999286E-0A47-406D-8B3D-5B5AD7373A4A/9600.16384.WINBLUE_RTM.130821-1623_X64FRE_ENTERPRISE_EVAL_EN-US-IRM_CENA_X64FREE_EN-US_DV5.ISO",
+    "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+    "username": "GingerTech",
+    "password": "password",
+    "memsize": "2048",
+    "numcpus": "2",
+    "update": "true",
+    "build_num": "1.0",
+    "vmname": "Ee"
+  },
   "builders": [
     {
       "type": "qemu",
       "floppy_files": [
         "floppy/81/Autounattend.xml",
-        "floppy/update-windows.ps1",
-        "floppy/configure-winrm.ps1"
+        "floppy/81/00-run-all-scripts.cmd",
+        "floppy/81/fixnetwork.ps1",
+        "floppy/81/install-winrm.cmd",
+        "floppy/81/zz-start-transports.cmd",
+        "floppy/81/Update-Needed.ps1",
+        "floppy/81/RunPwSh.bat"
       ],
-      "vm_name": "{{user `vm_name`}}",
       "iso_url": "{{user `iso_url`}}",
       "iso_checksum": "{{user `iso_checksum`}}",
       "iso_checksum_type": "md5",
-      "output_directory": "Builds/{{build_type}}/{{user `vm_name`}}-{{user `version`}}",
+      "output_directory": "Builds/{{user `vmname`}}-{{user `build_num`}}",
+      "vm_name": "{{user `vmname`}}-{{user `build_num`}}",
       "disk_size": 61440,
       "headless": "false",
       "communicator": "winrm",
       "winrm_username": "{{user `username`}}",
       "winrm_password": "{{user `password`}}",
       "winrm_timeout": "6h",
-      "boot_wait":"2s",
+      "boot_wait":"2m",
       "shutdown_command": "{{ user `shutdown_command`}}",
       "qemuargs": [
         ["-m", "{{user `memsize`}}"],
@@ -28,15 +46,19 @@
     {
       "type": "virtualbox-iso",
       "floppy_files": [
-        "floppy/Win10/Autounattend.xml",
-        "floppy/update-windows.ps1",
-        "floppy/configure-winrm.ps1"
+        "floppy/81/Autounattend.xml",
+        "floppy/81/00-run-all-scripts.cmd",
+        "floppy/81/fixnetwork.ps1",
+        "floppy/81/install-winrm.cmd",
+        "floppy/81/zz-start-transports.cmd",
+        "floppy/81/Update-Needed.ps1",
+        "floppy/81/RunPwSh.bat"
       ],
-      "vm_name": "{{user `vm_name`}}",
       "iso_url": "{{user `iso_url`}}",
       "iso_checksum_type": "md5",
       "iso_checksum": "{{user `iso_checksum`}}",
-      "output_directory": "Builds/{{build_type}}/{{user `vm_name`}}-{{user `version`}}",
+      "output_directory": "Builds/{{user `vmname`}}-{{user `build_num`}}",
+      "vm_name": "{{user `vmname`}}-{{user `build_num`}}",
       "disk_size": 61440,
       "headless": "false",
       "shutdown_command": "{{ user `shutdown_command`}}",
@@ -47,28 +69,14 @@
       "winrm_username": "{{user `username`}}",
       "winrm_password": "{{user `password`}}",
       "winrm_timeout": "6h",
+      "boot_wait":"2m",
       "guest_os_type": "Windows81_64",
       "guest_additions_mode": "upload",
       "guest_additions_path": "c:/Windows/Temp/windows.iso",
       "vboxmanage": [
-          [
-            "modifyvm",
-            "{{.Name}}",
-            "--memory",
-            "2048"
-          ],
-          [
-            "modifyvm",
-            "{{.Name}}",
-            "--cpus",
-            "2"
-          ],
-          [
-            "modifyvm",
-            "{{.Name}}",
-            "--vram", 
-            "32"
-          ]	
+          [ "modifyvm", "{{.Name}}", "--memory", "2048" ],
+          [ "modifyvm", "{{.Name}}", "--cpus", "2" ],
+          [ "modifyvm", "{{.Name}}", "--vram", "32" ]	
         ]
     },
     {
@@ -76,22 +84,27 @@
       "communicator": "winrm",
       "disk_size": 61440,
       "floppy_files": [
-        "floppy/Win10/Autounattend.xml",
-        "floppy/update-windows.ps1",
-        "floppy/configure-winrm.ps1"
+        "floppy/81/Autounattend.xml",
+        "floppy/81/00-run-all-scripts.cmd",
+        "floppy/81/fixnetwork.ps1",
+        "floppy/81/install-winrm.cmd",
+        "floppy/81/zz-start-transports.cmd",
+        "floppy/81/Update-Needed.ps1",
+        "floppy/81/RunPwSh.bat"
       ],
       "guest_os_type": "windows8srv-64",
       "headless": false,
       "iso_url": "{{user `iso_url`}}",
       "iso_checksum_type": "md5",
       "iso_checksum": "{{user `iso_checksum`}}",
-      "output_directory": "Builds/{{build_type}}/{{user `vm_name`}}-{{user `version`}}",
+      "output_directory": "Builds/{{user `vmname`}}-{{user `build_num`}}",
+      "vm_name": "{{user `vmname`}}-{{user `build_num`}}",
       "winrm_username": "{{user `username`}}",
       "winrm_password": "{{user `password`}}",
       "winrm_timeout": "6h",
+      "boot_wait":"2m",
       "shutdown_command": "{{ user `shutdown_command`}}",
       "tools_upload_flavor": "windows",
-      "vm_name": "{{user `vm_name`}}",
       "vmx_data": {
         "memsize": "{{user `memsize`}}",
         "numvcpus": "{{user `numcpus`}}",
@@ -108,13 +121,27 @@
   ],
   "provisioners": [
     {
-      "type": "powershell",
-      "inline": "Set-MpPreference -DisableRealtimeMonitoring $true"
+      "type": "windows-shell",
+      "execute_command": "{{.Vars}} cmd /c C:\\Windows\\Temp\\script.bat",
+      "scripts": [
+        "scripts/winshared/guest-tools.bat"
+      ]
     },
     {
       "type": "file",
       "source": "scripts/winshared/InstallScoop.ps1",
       "destination": "C:\\InstallScoop.ps1"
+    },
+    {
+      "type": "file",
+      "source": "files/ninite-81.exe",
+      "destination": "C:\\ninite.exe"
+    },
+    {
+      "type": "windows-shell",
+      "inline": [
+        "C:\\ninite.exe /locale en-US"
+      ]
     },
     {
       "type": "file",
@@ -144,17 +171,5 @@
         "cd C:\\Windows\\system32\\",
         ".\\schtasks.exe /create /tn StartNSATracking /tr \"powershell Restart-Computer\" /sc Hourly /ru \"GingerTech\" /rp \"password\""]
     }
-  ],
-  "variables": {
-    "vm_name": "Windows 81",
-    "iso_checksum": "5e4ecb86fd8619641f1d58f96e8561ec",
-    "iso_url": "http://download.microsoft.com/download/B/9/9/B999286E-0A47-406D-8B3D-5B5AD7373A4A/9600.16384.WINBLUE_RTM.130821-1623_X64FRE_ENTERPRISE_EVAL_EN-US-IRM_CENA_X64FREE_EN-US_DV5.ISO",
-    "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
-    "username": "GingerTech",
-    "password": "password",
-    "memsize": "2048",
-    "numcpus": "2",
-    "update": "true",
-    "version": "0.1.0"
-  }
+  ]
 }

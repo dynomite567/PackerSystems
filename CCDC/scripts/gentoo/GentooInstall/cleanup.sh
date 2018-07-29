@@ -1,7 +1,7 @@
 #!/bin/bash
 # Author  : Bailey Kasin
-# Date    : 12/14/2017
-# Purpose : Main file of a suite of Gentoo install and config scripts
+# Date    : 5/25/2018
+# Purpose : Final cleanup of build
 
 echo "
     
@@ -42,17 +42,9 @@ echo "
 
 ";
 
-source ./include/src/preflight.sh
-
-# Check for root privileges
-check_root
-# Check whether on Gentoo or other OS
-check_distro
-
-echo "Preflight done, should be good to go!"
-
 echo "Cleaning up from Gentoo setup"
-cd
-umount -l /mnt/gentoo/dev{/shm,/pts,}
+cd /mnt/gentoo
+rm -rf GentooInstall stage3-* cleanup.sh
+
 umount -R /mnt/gentoo
 reboot
