@@ -2,7 +2,7 @@
 
 **Forked from GitHub repo BaileyGingerTechnology/PackerSystems**
 
-The goal of this project is to eventually provide practice environments for CyberPatriot for high school students
+The goal of this project is to eventually provide practice environments for high school students in CyberPatriot. 
 
 ## Build instructions:
 
