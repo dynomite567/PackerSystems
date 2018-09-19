@@ -2,10 +2,7 @@
 
 **Forked from GitHub repo BaileyGingerTechnology/PackerSystems**
 
-The goal of this project is to eventually provide practice environments for things such as:
-
-1. CyberPatriot for high school students
-2. CCDC for college students
+The goal of this project is to eventually provide practice environments for CyberPatriot for high school students
 
 ## Build instructions:
 
