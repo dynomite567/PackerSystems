@@ -105,7 +105,7 @@
       "disk_size": 15000,
       "headless": "false",
       "http_directory": "http",
-      "boot_wait": "5s",
+      "boot_wait": "10s",
       "boot_command": [
         "<enter><wait>",
         "<f6><esc>",
