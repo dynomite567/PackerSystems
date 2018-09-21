@@ -1,0 +1,9 @@
+[Unit]
+Description=Controls scoring engine service
+After=network.target
+[Service]
+Type=simple
+User=administrator
+ExecStart=/bin/bash -c "/usr/bin/scoringengine &" && /bin/bash -c "cd /opt/site && dotnet run"
+[Install]
+WantedBy=multi-user.target

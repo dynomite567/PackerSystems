@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<h3>@ViewData["Message"]</h3>
+
+<p>
+    We've hired you to fix up and administrate our systems. We recently fired our previous
+    systems administrator and they retaliated by messing up all of our machines and network.
+</p>
+
+<p>
+    All that's left at this point is the system that we had in place to periodically check if
+    required services are still running and functional, but we're not certain if that box is
+    untouched.
+</p>
+
+<p>
+    Here's a quick list of what we have already done with each box to help you get moving:
+</p>
+<div style="margin-top:20px">
+@Html.Partial("Checks")
+</div>

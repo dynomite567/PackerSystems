@@ -1,0 +1,7 @@
+checkscore (1.1) stable; urgency=high
+
+* Minor rework of Linux checks, and now a bit easier to extend.
+
+* More possible forensic questions.
+
+-- Bailey Kasin <bailey@gingertechnology.net> Sun, 05 Aug 2018 05:00:00 -0700

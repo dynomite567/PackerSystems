@@ -1,0 +1,10 @@
+Package: scoringengine
+Version: 1.0
+Section: base
+Priority: optional
+Architecture: amd64
+Maintainer: Bailey Kasin <bailey@gingertechnology.net>
+Description: Checks to see
+  if required services are
+  still running on important
+  machines.

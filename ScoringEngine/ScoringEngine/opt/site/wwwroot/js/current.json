@@ -1,0 +1,68 @@
+[
+  {
+    "title": "GingerTech Web",
+    "command": "echo GTW",
+    "expected": "GTW\n",
+    "good": false
+  },
+  {
+    "title": "GingerTech SSH",
+    "command": "echo GTS",
+    "expected": "GTS\n",
+    "good": false
+  },
+  {
+    "title": "Arch MySQL",
+    "command": "echo AM",
+    "expected": "AM\n",
+    "good": false
+  },
+  {
+    "title": "Arch PostgreSQL",
+    "command": "echo AP",
+    "expected": "AP\n",
+    "good": false
+  },
+  {
+    "title": "GentWeb Web",
+    "command": "echo GTW2",
+    "expected": "GTW2\n",
+    "good": false
+  },
+  {
+    "title": "GentWeb SSH",
+    "command": "echo GTS2",
+    "expected": "GTS2",
+    "good": false
+  },
+  {
+    "title": "CentShip Chat Server",
+    "command": "echo CSCS",
+    "expected": "CSCS",
+    "good": false
+  },
+  {
+    "title": "FreeBSD Web",
+    "command": "echo FBW",
+    "expected": "FBW",
+    "good": false
+  },
+  {
+    "title": "FreeBSD Database",
+    "command": "echo FBD",
+    "expected": "FBD",
+    "good": false
+  },
+  {
+    "title": "Domain Controller DNS",
+    "command": "echo DCD",
+    "expected": "DCD",
+    "good": false
+  },
+  {
+    "title": "Domain Controller Mail",
+    "command": "echo DCM",
+    "expected": "DCM",
+    "good": false
+  }
+]
