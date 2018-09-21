@@ -1,8 +1,6 @@
 # ForensicDeployment
 The engine for deploying forensic questions in my PackerSystems project.
 
-I've decided to separate out the smaller projects from PackerSystems into their own repos.
-
 This is the engine for picking and deploying two random forensic questions from questions.json
 during the first boot of one of the CyberPatriot images. questions.json is the ScoringEngine repo.
 
