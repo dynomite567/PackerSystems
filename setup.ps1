@@ -3,7 +3,6 @@
 Write-Output "Setting up project"
 
 git pull
-git submodule update --init --remote --recursive
 
 $DoIt = Read-Host -Prompt 'Latest changes pulled. Build ScoringEngine? (Requries Go, enter "yes" to continue)'
 

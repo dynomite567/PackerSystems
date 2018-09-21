@@ -4,7 +4,6 @@
 echo "Setting up project"
 
 git pull
-git submodule update --init --remote --recursive
 
 echo "Latest changes pulled. Build ScoringEngine? (Requries Go and dpkg-deb, enter 'yes' to continue)"
 read DoIt
