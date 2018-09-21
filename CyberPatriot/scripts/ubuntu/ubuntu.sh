@@ -7,7 +7,7 @@ sudo apt update
 sudo apt -y upgrade
 
 # Installing dependencies for the rest of the build
-sudo apt -y install vim jq
+sudo apt -y install vim nano jq
 
 # Setting up LAMP stack
 echo "Installing MariaDB Server"
