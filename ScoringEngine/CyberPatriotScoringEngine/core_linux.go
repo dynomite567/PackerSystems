@@ -150,24 +150,6 @@ func PlatformCommon() {
 		}
 	}
 
-	// Check for Wordpress being up to date
-	args = []string{"-c", "cd /var/www/html && wp core check-update"}
-	var wordpressVersion = getCommandOutput("bash", args)
-	if strings.Contains(wordpressVersion, "Success") {
-		AppendStringToFile("/etc/gingertechengine/post", "Wordpress updated (11/12)")
-		AppendStringToFile("/etc/gingertechengine/post", "  -  Keeping everything up to date is a very important part of staying secure. You should also have needed to fix permissions to complete this check, which is an important thing to know how to do.")
-		AppendStringToFile("/etc/gingertechengine/post", "")
-	}
-
-	// Check for Wordfence being active
-	args = []string{"-c", "cd /var/www/html && wp plugin status wordfence | grep Status"}
-	var wordfence = getCommandOutput("bash", args)
-	if strings.Contains(wordfence, "Active") {
-		AppendStringToFile("/etc/gingertechengine/post", "Wordfence activated (12/12)")
-		AppendStringToFile("/etc/gingertechengine/post", "  - When running a WordPress website, using Wordfence is good idea for many reasons. It blocks a tool from wpscan from being able to see large amount of info about your website, such as the version and a list of plugins and users. It also acts as a firewall and Intrusion Detection System. Quite useful.")
-		AppendStringToFile("/etc/gingertechengine/post", "")
-	}
-
 	fmt.Println("Forensics")
 	ForensicQuestion()
 	fmt.Println("Extras")
@@ -203,11 +185,11 @@ func ForensicQuestion() {
 	questionTwo = string(content1)
 
 	if strings.Contains(questionOne, answerOne) {
-		AppendStringToFile("/etc/gingertechengine/post", "Forensic Question One Complete (1/2)")
+		AppendStringToFile("/etc/gingertechengine/post", "Forensic Question One Complete (11/12)")
 		AppendStringToFile("/etc/gingertechengine/post", "")
 	}
 	if strings.Contains(questionTwo, answerTwo) {
-		AppendStringToFile("/etc/gingertechengine/post", "Forensic Question Two Complete (2/2)")
+		AppendStringToFile("/etc/gingertechengine/post", "Forensic Question Two Complete (12/12)")
 		AppendStringToFile("/etc/gingertechengine/post", "")
 	}
 }
