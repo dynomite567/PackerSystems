@@ -99,8 +99,8 @@ func SSHChecks(config string) {
 
 	// Check Password
 	if strings.Contains(checkString, "PermitEmptyPasswords no") || strings.Contains(checkString, "PermitEmptyPasswords NO") {
-		AppendStringToFile("/etc/gingertechengine/post", "SSH set to protocol 2 (7/12)")
-		AppendStringToFile("/etc/gingertechengine/post", "  - SSH protocol 2 is more secure than protocol 1. Not certain why, but theres no overhead as far as I know, so it is best to use it.")
+		AppendStringToFile("/etc/gingertechengine/post", "PermitEmptyPasswords is set to no (7/12)")
+		AppendStringToFile("/etc/gingertechengine/post", "  - There really is no use to set this to yes, as there are no users that have no password. Also this enforces the use of a password for a user.")
 		AppendStringToFile("/etc/gingertechengine/post", "")
 	}
 }
